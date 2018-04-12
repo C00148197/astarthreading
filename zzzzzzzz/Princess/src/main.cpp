@@ -11,8 +11,8 @@
 #include <thread>
 
 
-//Our worker thread function
-int worker(void* data);
+//Our threadColl thread function
+int threadColl(void* data);
 //Data access semaphore
 SDL_sem* gDataLock = NULL;
 //The "data buffer"
@@ -109,7 +109,7 @@ void seek(float deltaTime, SDL_Point v, float dist, bool data) {
 		}
 	//	cout << vX << endl;
 
-		for (int i = 0; i < enemyVector.size(); i++)
+		for (int i = 0; i < enemyVector.size(); i++) //move towards target/targetnode
 		{
 			enemyVector.at(i)->x += vX;
 			enemyVector.at(i)->y += vY;
@@ -134,15 +134,15 @@ void seekPath(float deltaTime) {
 
 		distToTar = calculateMagnitude(vecToTargets);
 
-		//// if there are nodes to seek to
+		//// if there are nodes in list
 		if (!m_seekPath.empty()) {
-			// directional vector to next node
+			// vector to next node
 			SDL_Point vecToNextPoint = SDL_Point{ m_seekPath.at(0)->getPos().x - v2.x, m_seekPath.at(0)->getPos().y - v2.y };
 
-			// distance to next node
+			// distance
 			distToSeekNode = calculateMagnitude(vecToNextPoint);
 
-			// if the next node is closer than the worker
+			// if the next node is closer than the tar
 			if (distToSeekNode < distToTar) {
 				seek(deltaTime, vecToNextPoint, distToSeekNode, false);
 				//cout << distToTar << endl;
@@ -150,12 +150,12 @@ void seekPath(float deltaTime) {
 					m_seekPath.erase(m_seekPath.begin());
 				}
 			}
-			// if the worker is closer than the next node
+			// if the tar is closer than the next node
 			else {
 				seek(deltaTime, vecToTargets, distToTar, true);
 			}
 		}
-		// if there aren't nodes to seek to
+		// no nodes to seek to
 		else {
 			seek(deltaTime, vecToTargets, distToTar, true);
 		}
@@ -211,14 +211,14 @@ void setupSeekPath() {
 		}
 
 		if (!m_seekPath.empty()) {
-			// if the node that is closest (the destination) to the player has changed
+			// if the node that is closest to the player has changed
 			if (m_nodeLayout.getNodes()[indexClosestToTarget] != m_seekPath.at(m_seekPath.size() - 1)) {
 				m_seekPath.clear();
 				astar->calculatePath(m_nodeLayout.getNodes()[indexClosestToTarget], m_nodeLayout.getNodes()[indexClosestToSelf], m_seekPath);
 			}
 		}
 		else {
-			// create initial path
+			// create starter path
 			astar->calculatePath(m_nodeLayout.getNodes()[indexClosestToTarget], m_nodeLayout.getNodes()[indexClosestToSelf], m_seekPath);
 		}
 
@@ -277,7 +277,6 @@ int main()
 	r.w = 16;
 	r.h = 16;
 
-	//why even
 
 	nodePositions.push_back(SDL_Point{ 4 *16, 256 }); //top
 
@@ -306,12 +305,12 @@ int main()
 	cout << "num astar ai/collidable ai " << count << endl;
 
 	m_nodeLayout = nodePositions; //addarcsandstuff
-	astar = new AStar(m_nodeLayout);
+	astar = new AStar(m_nodeLayout); //load layout into astar
 
 
 
 
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++) //setup walls
 	{
 		for (int j = 0; j < 32; j++)
 		{
@@ -338,12 +337,11 @@ int main()
 		}
 	}
 
-	/////$$$$$$$$$$$$$$$$
-	//Run the threads
+	/////Setup Threads
 	srand(SDL_GetTicks());
-	SDL_Thread* threadA = SDL_CreateThread(worker, "Thread A", (void*)"Thread A");
+	SDL_Thread* threadA = SDL_CreateThread(threadColl, "ThreadA", (void*)"ThreadA");
 	SDL_Delay(16 + rand() % 32);
-	SDL_Thread* threadB = SDL_CreateThread(worker, "Thread B", (void*)"Thread B");
+	SDL_Thread* threadB = SDL_CreateThread(threadColl, "ThreadB", (void*)"ThreadB");
 	///$$$$$$$$$$$
 
 
@@ -521,9 +519,12 @@ void close()
 	gDataLock = NULL;
 }
 
-int worker(void* data)
+int threadColl(void* data)
 {
 //	srand(SDL_GetTicks());
+
+
+	//atomic action for threads (handle collision)
 
 	while (9 == 9)
 	{

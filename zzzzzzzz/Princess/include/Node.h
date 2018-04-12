@@ -36,12 +36,12 @@ private:
 
 	SDL_Point m_pos;
 
-	bool m_marked; // if the node has been visited
+	bool m_marked; // if the node was marked
 
-	Node *m_previous; // pointer to previous node
+	Node *m_previous; // prev node
 
 	float m_cost;
 	float m_heuristic;
 	
-	std::list<Arc> m_arcs; // list containing arcs to other nodes
+	std::list<Arc> m_arcs; // list arc paths
 };

@@ -16,9 +16,9 @@ public:
 	Node** getNodes();
 
 private:
-	Node** m_nodes; // pointer to array of pointers to nodes
+	Node** m_nodes; // point to nodearray
 
 	int m_noOfNodes;
 
-	void addArcs(); // adds connections between nodes
+	void addArcs(); // addsarcs
 };

@@ -15,9 +15,6 @@ void Node::addArc(Node *n) {
 }
 
 float Node::calculateArcWeight(SDL_Point otherNodePos) {
-	/********************************************//**
- *  ...  weight is the distance between the nodes
- ***********************************************/
 
 	return sqrt(((otherNodePos.x - m_pos.x) * (otherNodePos.x - m_pos.x)) + ((otherNodePos.y - m_pos.y) * (otherNodePos.y - m_pos.y)));
 }
